@@ -1,0 +1,84 @@
+@model NguyenVanDiepMVC.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3 rounded-top">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2"></i>Đăng Nhập Hệ Thống</h4>
+                <small class="text-white-50">FUNews Management System</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" id="loginEmail" class="form-control" placeholder="Nhập địa chỉ email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold">Mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input asp-for="Password" id="loginPassword" type="password" class="form-control" placeholder="Nhập mật khẩu" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label">Ghi nhớ đăng nhập</label>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary py-2 fw-semibold">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng Nhập
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <a asp-controller="News" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-newspaper me-1"></i>Xem tin tức công khai (Khách)
+                    </a>
+                </div>
+
+                <!-- Test accounts quick filler -->
+                <div class="mt-4 p-3 bg-light rounded border">
+                    <div class="fw-bold small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Tài khoản mẫu để kiểm thử nhanh:</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="fillAccount('admin@FUNewsManagementSystem.org', '@@abc123@@')">
+                            Admin (appsettings)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillAccount('IsabellaDavid@FUNewsManagement.org', '@@1')">
+                            Staff
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="fillAccount('EmmaWilliam@FUNewsManagement.org', '@@1')">
+                            Lecturer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillAccount(email, password) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+        }
+    </script>
+}

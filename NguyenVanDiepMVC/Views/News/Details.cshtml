@@ -1,0 +1,76 @@
+@model BusinessObjects.NewsArticle
+@{
+    ViewData["Title"] = Model.NewsTitle;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Tin tức</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@(Model.Category?.CategoryName ?? "Bài viết")</li>
+            </ol>
+        </nav>
+
+        <article class="card card-shadow border-0 p-4 p-md-5 mb-5 bg-white">
+            <div class="mb-3">
+                <span class="badge bg-primary px-3 py-2 fs-6">
+                    <i class="bi bi-tag me-1"></i>@(Model.Category?.CategoryName ?? "Chung")
+                </span>
+            </div>
+
+            <h1 class="display-6 fw-bold mb-3">@Model.NewsTitle</h1>
+
+            <div class="d-flex flex-wrap gap-3 text-muted small pb-3 mb-4 border-bottom">
+                <div>
+                    <i class="bi bi-person-circle me-1"></i>Tác giả: <strong>@(Model.CreatedBy?.AccountName ?? "FU Editor")</strong>
+                </div>
+                <div>
+                    <i class="bi bi-calendar3 me-1"></i>Ngày đăng: @(Model.CreatedDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+                </div>
+                @if (!string.IsNullOrEmpty(Model.NewsSource) && Model.NewsSource != "N/A")
+                {
+                    <div>
+                        <i class="bi bi-link-45deg me-1"></i>Nguồn: @Model.NewsSource
+                    </div>
+                }
+            </div>
+
+            <!-- Headline Callout -->
+            <div class="alert alert-secondary border-start border-4 border-primary p-3 mb-4 fst-italic">
+                @Model.Headline
+            </div>
+
+            <!-- News Content -->
+            <div class="article-content fs-5 lh-lg mb-4" style="white-space: pre-line;">
+                @Model.NewsContent
+            </div>
+
+            <!-- Tags -->
+            @if (Model.NewsTags != null && Model.NewsTags.Any())
+            {
+                <div class="mt-4 pt-3 border-top">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <span class="fw-semibold text-muted me-2"><i class="bi bi-tags me-1"></i>Tags:</span>
+                        @foreach (var nt in Model.NewsTags)
+                        {
+                            <span class="badge bg-light text-primary border px-3 py-2 fs-6">#@nt.Tag?.TagName</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách tin
+                </a>
+                @if (User.IsInRole("Staff"))
+                {
+                    <a asp-controller="NewsArticle" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-gear me-1"></i>Quản lý bài viết
+                    </a>
+                }
+            </div>
+        </article>
+    </div>
+</div>

@@ -1,0 +1,205 @@
+@model NguyenVanDiepMVC.Models.ReportViewModel
+@{
+    ViewData["Title"] = "Báo cáo thống kê";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Báo Cáo Thống Kê (Admin)</h2>
+        <span class="text-muted">Thống kê bài viết tin tức theo khoảng thời gian và sắp xếp giảm dần</span>
+    </div>
+    <button onclick="window.print()" class="btn btn-outline-secondary d-none d-md-inline-block">
+        <i class="bi bi-printer me-1"></i>In báo cáo
+    </button>
+</div>
+
+<!-- Date Filter Form -->
+<div class="card card-shadow border-0 mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Report" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Từ ngày (StartDate)</label>
+                <input type="date" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Đến ngày (EndDate)</label>
+                <input type="date" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i>Xem Thống Kê
+                </button>
+                @if (Model.StartDate.HasValue || Model.EndDate.HasValue)
+                {
+                    <a asp-action="Report" class="btn btn-outline-secondary">Tất cả</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-shadow border-0 bg-primary text-white h-100">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Tổng bài viết</div>
+                        <div class="display-6 fw-bold mt-1">@Model.TotalArticles</div>
+                    </div>
+                    <i class="bi bi-file-earmark-text fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-shadow border-0 bg-success text-white h-100">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Bài viết Active</div>
+                        <div class="display-6 fw-bold mt-1">@Model.ActiveArticles</div>
+                    </div>
+                    <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-shadow border-0 bg-warning text-dark h-100">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-black-50 small text-uppercase fw-bold">Bài viết Inactive</div>
+                        <div class="display-6 fw-bold mt-1">@Model.InactiveArticles</div>
+                    </div>
+                    <i class="bi bi-eye-slash fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-shadow border-0 bg-info text-white h-100">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small text-uppercase fw-bold">Danh mục có bài</div>
+                        <div class="display-6 fw-bold mt-1">@Model.CategoryStats.Count</div>
+                    </div>
+                    <i class="bi bi-tags fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Stats Section -->
+@if (Model.CategoryStats.Any())
+{
+    <div class="card card-shadow border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 fw-bold"><i class="bi bi-pie-chart me-2 text-primary"></i>Phân bố bài viết theo danh mục</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                @foreach (var stat in Model.CategoryStats)
+                {
+                    var percentage = Model.TotalArticles > 0 ? (stat.Value * 100 / Model.TotalArticles) : 0;
+                    <div class="col-md-6 col-lg-4">
+                        <div class="border rounded p-3 bg-light">
+                            <div class="d-flex justify-content-between fw-bold mb-1">
+                                <span>@stat.Key</span>
+                                <span class="text-primary">@stat.Value bài (@percentage%)</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: @percentage%"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Detailed Articles Table -->
+<div class="card card-shadow border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-table me-2 text-primary"></i>Chi tiết bài viết (Sắp xếp giảm dần theo ngày tạo)
+        </h5>
+        <span class="badge bg-secondary">@Model.Articles.Count kết quả</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th style="width: 35%;">Tiêu Đề</th>
+                        <th>Danh Mục</th>
+                        <th>Tác Giả</th>
+                        <th>Ngày Tạo (Giảm dần)</th>
+                        <th>Trạng Thái</th>
+                        <th class="text-end pe-4">Chi Tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Articles == null || !Model.Articles.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-calendar-x fs-1 d-block mb-3 text-secondary"></i>
+                                Không có bài viết nào được tạo trong khoảng thời gian đã chọn.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var a in Model.Articles)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">@a.NewsArticleId</td>
+                                <td>
+                                    <div class="fw-bold text-truncate" style="max-width: 350px;">@a.NewsTitle</div>
+                                    <div class="small text-muted text-truncate" style="max-width: 350px;">@a.Headline</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary border">
+                                        @(a.Category?.CategoryName ?? "-")
+                                    </span>
+                                </td>
+                                <td class="small">
+                                    @(a.CreatedBy?.AccountName ?? "N/A")
+                                </td>
+                                <td class="small fw-semibold text-primary">
+                                    @(a.CreatedDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+                                </td>
+                                <td>
+                                    @if (a.NewsStatus == true)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
+                                            Inactive
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-controller="News" asp-action="Details" asp-route-id="@a.NewsArticleId" class="btn btn-sm btn-outline-info" target="_blank">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
